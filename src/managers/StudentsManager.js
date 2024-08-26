@@ -1,22 +1,19 @@
 import fs from 'fs';
-
 import { isSubset } from '../utils/sets.js';
 
-const PATH = './src/files/students.json';
+const PATH = './src/file/students.json';
 
 export default class StudentsManager {
     constructor(){
         if(!fs.existsSync(PATH)){
-            this.init();
-        }else{
+          this.init();
+        }else {
             console.log("Students file found")
         }
     }
     async init(){
-        //Aquí voy a crear el archivo
         await fs.promises.writeFile(PATH,JSON.stringify([]))
     }
-
     async getStudents(filters = {}) {
         const data = await fs.promises.readFile(PATH,'utf-8');
         const students = JSON.parse(data);

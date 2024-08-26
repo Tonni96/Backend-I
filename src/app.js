@@ -1,28 +1,26 @@
-import express from "express";
-import StudentsManager from "./managers/StudentsManager.js";
+import express from 'express';
+import StudentsManager from './managers/StudentsManager.js';
 
-const app = express();
+const app= express ();
 
 const PORT = process.env.PORT||8080;
 
 const studentsManager = new StudentsManager();
-
 app.listen(PORT,()=>console.log(`Listening on ${PORT}`));
 
-
-app.get('/students',async (req,res)=>{
+app.get ('/students', async (req, res)=> {
     try{
         const query = req.query;
         console.log(query);
-        const students = await studentsManager.getStudents(query);
-        return res.send({students})
+       const students = await studentsManager.getStudents();
+       return res.send({students})
     }catch(error){
         console.log(error);
-        return res.send("Cannot get Students")
+           return res.send("cannot get Students")
     }
 })
 
-app.get('/students/:sid',async (req,res)=>{
+app.get('/students/:sid', async (req, res)=>{
     try{
         const {sid} = req.params;
         const parsedId = parseInt(sid);
