@@ -1,40 +1,57 @@
 import express from 'express';
-import StudentsManager from './managers/StudentsManager.js';
 
-const app= express ();
+const app = express();
 
 const PORT = process.env.PORT||8080;
 
-const studentsManager = new StudentsManager();
-app.listen(PORT,()=>console.log(`Listening on ${PORT}`));
+const server = app.listen(PORT,()=>console.log(`Listening on ${PORT}`));
 
-app.get ('/students', async (req, res)=> {
-    try{
-        const query = req.query;
-        console.log(query);
-       const students = await studentsManager.getStudents();
-       return res.send({students})
-    }catch(error){
-        console.log(error);
-           return res.send("cannot get Students")
-    }
+app.use(express.json());
+
+const users = [];
+
+app.get('/users',(req,res)=>{
+    //¿Cuál sería su intención? : Obtener usuarios
+    res.send({users});
 })
 
-app.get('/students/:sid', async (req, res)=>{
-    try{
-        const {sid} = req.params;
-        const parsedId = parseInt(sid);
-        if(isNaN(parsedId)){//Me están tratando de hacer trampa
-            return res.send("invalid Id")
-        }
-        const student = await studentsManager.getStudentById(parsedId)
-        if(!student){
-            return res.send("Student Not Found");
-        }
-        
-        return res.send({student})
-    }catch(error){
-        console.log(error);
-        return res.send("Cannot get student")
+app.post('/users',(req,res)=>{
+    //¿Cuál sería su intención? : Añadir o Crear un usuario
+    const {firstName,lastName,id} = req.body;
+    //Valido el cuerpo de la petición
+    if(!firstName||!lastName){
+        return res.status(400).send({status:"error",error:"Incomplete values"});
     }
+    const newUser = {
+        id,
+        firstName,
+        lastName
+    }
+    users.push(newUser);
+   // res.send({status:"success",message:"User created", id});
+    res.sendStatus(201); //Created
+
+})
+app.put('/users/:uid',(req,res)=>{
+    //¿Cuál sería su intención? : Actualizar un usuario
+    const {uid} = req.params;
+    const {firstName, lastName} = req.body;
+    const userIndex = users.findIndex(u=>u.id===uid);
+    if(userIndex === -1){
+        return res.status(400).send({status:"error",error:"User doesn't exist"})
+    }
+    users[userIndex] = {...users[userIndex],firstName,lastName};
+
+    res.send({status:"success",message:"User updated"});
+})
+
+app.delete('/users/:uid',(req,res)=>{
+    //¿Cuál sería su intención? : Borrar un usuario
+    const {uid} = req.params;
+    const userIndex = users.findIndex(u=>u.id===uid);
+    if(userIndex === -1){
+        return res.status(400).send({status:"error",error:"User doesn't exist"})
+    }
+    users.splice(userIndex,1);
+    res.sendStatus(204);
 })
